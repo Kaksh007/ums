@@ -1,103 +1,162 @@
 # Robro User Management System
 
-Angular + Vercel serverless implementation of the full-stack assignment.
+Full-stack assignment implementation using Angular for the frontend and Node.js for the backend, with MongoDB Atlas for data storage and Cloudinary for captured image storage.
 
-## Features
+## Overview
 
-- JWT login with bcrypt password hashing.
-- Seeded default Admin user.
-- Admin user creation, role assignment, and account removal.
-- Role-based access control for Admin, Supervisor, and Worker.
-- Browser camera capture after login.
-- Cloudinary image upload with MongoDB Atlas metadata storage.
-- Single Vercel project deployment from the repo root.
+This project provides:
 
-## Roles
+- User authentication with JWT-based login
+- Role-based access control for Admin, Supervisor, and Worker
+- User management for Admin users
+- Camera-based image capture after login
+- Secure image upload to Cloudinary
+- MongoDB-backed storage for users, roles, and image metadata
+- Vercel-ready deployment using serverless API functions
 
-- `Admin`: create Supervisor/Worker accounts, remove non-admin users, view all image records.
-- `Supervisor`: view users and all captured images, without user mutation permissions.
-- `Worker`: capture images and view only their own uploads.
+## Tech Stack
 
-## Local Setup
+- Frontend: Angular
+- Backend: Node.js
+- Local backend runtime: Express
+- Deployed backend runtime: Vercel serverless functions
+- Database: MongoDB Atlas
+- Image storage: Cloudinary
+- Authentication: JWT + bcrypt
+
+## Role Access
+
+- `Admin`: manage users + see all images
+- `Supervisor`: view users + see all images
+- `Worker`: capture images + see only own images
+
+## Project Structure
+
+- `src/`: Angular frontend
+- `api/`: Vercel serverless backend endpoints
+- `api/_lib/`: shared backend helpers for database, auth, and HTTP handling
+- `server.js`: local Express wrapper that reuses the same API handlers for development
+- `dev.js`: starts the local backend and Angular frontend together
+
+## Authentication and Permissions
+
+- A default Admin account is seeded on first startup
+- Passwords are stored as bcrypt hashes
+- JWT tokens are issued after successful login
+- Role checks are enforced on the backend, not only in the UI
+
+Default seeded Admin credentials:
+
+```text
+Email: admin@example.com
+Password: Admin@123
+```
+
+These values can be changed through environment variables.
+
+## Environment Variables
+
+Create a local environment file using the values below:
+
+```env
+MONGODB_URI=your-mongodb-atlas-connection-string
+JWT_SECRET=replace-with-a-long-random-secret
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=Admin@123
+```
+
+## Running the Project Locally
 
 1. Install dependencies.
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
-2. Create `.env.local` from `.env.example`.
+2. Create `.env.local` in the project root and add the required environment variables.
 
-   ```bash
-   cp .env.example .env.local
-   ```
-
-3. Fill in these values.
-
-   ```bash
-   MONGODB_URI=your-mongodb-atlas-connection-string
-   JWT_SECRET=replace-with-a-long-random-secret
-   CLOUDINARY_CLOUD_NAME=your-cloud-name
-   CLOUDINARY_API_KEY=your-api-key
-   CLOUDINARY_API_SECRET=your-api-secret
-   ADMIN_EMAIL=admin@example.com
-   ADMIN_PASSWORD=Admin@123
-   ```
-
-4. Start the local app. This runs the Express API on `http://127.0.0.1:3000` and the Angular UI on `http://127.0.0.1:4200`.
-
-   ```bash
-   npm start
-   ```
-
-5. Open `http://127.0.0.1:4200/login` and sign in with:
-
-   ```text
-   admin@example.com
-   Admin@123
-   ```
-
-`npm start` now runs both local servers together. The Angular app proxies `/api` requests to the local Express API on port `3000`.
-
-If you use `vercel dev` for deployment testing, it is separate from the normal local workflow. For day-to-day development, `npm start` is the correct command.
-
-## Vercel Deployment
-
-1. Push this repo to GitHub, GitLab, or Bitbucket.
-2. Import the repo as a new Vercel project.
-3. Add the environment variables from `.env.example` in Vercel Project Settings.
-4. Deploy from the repo root.
-
-Vercel uses:
-
-- Build command: `npm run vercel-build`
-- Output directory: `dist/client/browser`
-- API functions: files under `api/`
-
-## MongoDB Atlas Notes
-
-- Create an Atlas cluster and database user.
-- Add the Vercel outbound IP policy you prefer, or allow access from anywhere for assignment/demo usage.
-- Use the Atlas connection string as `MONGODB_URI`.
-
-## Cloudinary Notes
-
-- Create a Cloudinary account.
-- Copy cloud name, API key, and API secret into the environment variables.
-- Uploaded captures are stored in the `robro-user-captures` folder.
-
-## Security Decisions
-
-- Passwords are never stored directly; bcrypt hashes are persisted.
-- JWTs expire after 8 hours.
-- RBAC is enforced in serverless API functions.
-- Image bytes are not stored on Vercel disk, keeping the app compatible with serverless deployment.
-- Admin accounts cannot be deleted from the UI/API delete endpoint.
-
-## Useful Commands
+3. Start the full local application.
 
 ```bash
-npm run build
 npm start
+```
+
+4. Open the frontend in your browser:
+
+```text
+http://127.0.0.1:4200/login
+```
+
+Local runtime details:
+
+- Angular frontend runs on `http://127.0.0.1:4200`
+- Local backend API runs on `http://127.0.0.1:3000`
+- Frontend `/api` requests are proxied to the local backend
+
+## Available Scripts
+
+```bash
+npm start
+npm run build
 npx vercel dev
 ```
+
+## API Summary
+
+- `POST /api/auth/login`: authenticate user and return JWT
+- `GET /api/users`: list users for Admin and Supervisor
+- `POST /api/users`: create Supervisor or Worker account for Admin
+- `DELETE /api/users/:id`: remove a non-admin user for Admin
+- `GET /api/images`: list all images for Admin and Supervisor
+- `POST /api/images`: upload a captured image for authenticated users
+- `GET /api/images/mine`: list current user images
+
+## Deployment on Vercel
+
+This project is set up for a single Vercel deployment:
+
+- Angular is built as the frontend
+- Files in `api/` are deployed as serverless backend functions
+- MongoDB Atlas is used as the hosted database
+- Cloudinary stores uploaded images
+
+Deployment steps:
+
+1. Push the repository to GitHub, GitLab, or Bitbucket
+2. Import the repository into Vercel
+3. Add all environment variables in Vercel Project Settings
+4. Deploy from the repository root
+
+Vercel configuration:
+
+- Build command: `node ./node_modules/@angular/cli/bin/ng.js build`
+- Output directory: `dist/client/browser`
+- API routes: `api/*`
+
+## Security Notes
+
+- Passwords are never stored in plain text
+- JWT tokens expire after 8 hours
+- Image files are not stored on local server disk in production
+- Admin accounts cannot be removed through the delete-user endpoint
+
+## Development Notes
+
+- The deployed backend is serverless on Vercel
+- The local backend uses Express only as a development wrapper around the same API handlers
+- This keeps local development simple while preserving the deployed architecture
+
+## Submission Notes
+
+This implementation covers the assignment requirements for:
+
+- authentication
+- user management
+- role-based access control
+- image capture
+- backend image storage
+- local run instructions
+- Vercel-ready deployment
