@@ -26,7 +26,7 @@ import { User } from '../../core/types';
         <div class="alert error">{{ error() }}</div>
       }
 
-      <section class="grid two">
+      <section class="grid two users-layout" [class.users-layout-single]="!auth.canManageUsers()">
         @if (auth.canManageUsers()) {
           <div class="panel">
             <h2>Create account</h2>
@@ -55,7 +55,7 @@ import { User } from '../../core/types';
           </div>
         }
 
-        <div class="panel">
+        <div class="panel users-list-panel">
           <h2>Account list</h2>
           <div class="table-wrap">
             <table>

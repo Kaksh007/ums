@@ -175,6 +175,14 @@ h2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.users-layout-single {
+  grid-template-columns: 1fr;
+}
+
+.users-list-panel {
+  width: 100%;
+}
+
 .grid.three {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
