@@ -109,7 +109,7 @@ npx vercel dev
 - `POST /api/auth/login`: authenticate user and return JWT
 - `GET /api/users`: list users for Admin and Supervisor
 - `POST /api/users`: create Supervisor or Worker account for Admin
-- `DELETE /api/users/:id`: remove a non-admin user for Admin
+- `DELETE /api/users?id=<userId>`: remove a non-admin user for Admin
 - `GET /api/images`: list all images for Admin and Supervisor
 - `POST /api/images`: upload a captured image for authenticated users
 - `GET /api/images/mine`: list current user images

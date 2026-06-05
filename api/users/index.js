@@ -55,7 +55,35 @@ module.exports = async function handler(req, res) {
       return sendJson(res, 201, { user: serializeUser(user) });
     }
 
-    return methodNotAllowed(res, ['GET', 'POST']);
+    if (req.method === 'DELETE') {
+      requireRoles(currentUser, ['Admin']);
+      const id = String(req.query?.id || '').trim();
+
+      if (!id) {
+        return sendJson(res, 400, { message: 'User id is required.' });
+      }
+
+      if (id === currentUser._id.toString()) {
+        return sendJson(res, 400, { message: 'Admin cannot delete their own account.' });
+      }
+
+      const user = await User.findById(id);
+      if (!user) {
+        return sendJson(res, 404, { message: 'User not found.' });
+      }
+
+      if (user.role === 'Admin') {
+        return sendJson(res, 400, { message: 'Admin accounts cannot be removed here.' });
+      }
+
+      const CapturedImage = require('../_lib/models/CapturedImage');
+      await CapturedImage.deleteMany({ owner: user._id });
+      await user.deleteOne();
+
+      return sendJson(res, 200, { message: 'User removed.' });
+    }
+
+    return methodNotAllowed(res, ['GET', 'POST', 'DELETE']);
   } catch (error) {
     return handleError(res, error);
   }

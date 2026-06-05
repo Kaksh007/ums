@@ -19,7 +19,7 @@ export class ApiService {
   }
 
   deleteUser(id: string) {
-    return this.http.delete<{ message: string }>(`/api/users/${id}`);
+    return this.http.delete<{ message: string }>(`/api/users?id=${encodeURIComponent(id)}`);
   }
 
   uploadImage(imageData: string) {
